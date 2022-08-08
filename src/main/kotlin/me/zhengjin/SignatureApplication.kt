@@ -46,9 +46,10 @@ class SignatureApplication(
 
     override fun run(vararg args: String?) {
         // 检查配置信息
-        baseProperties.check()
+        baseProperties.beforeInitCheck()
         // 初始化密码机连接
         XmlSignatureUtils.initSwsds(baseProperties.swsds.ip!!, baseProperties.swsds.port!!, baseProperties.swsds.password!!)
+        baseProperties.afterInitCheck()
         // 获取Rabbit容器
         val container = SpringBeanUtils.getBean(SimpleMessageListenerContainer::class.java)
         // 设置消费者数量

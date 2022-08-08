@@ -75,14 +75,13 @@ class CustomsSignature {
         if (privateKey.isNullOrBlank() && keyIndex == null) throw Exception("私钥与私钥序号不能同时为空")
         if (clientEndPointCert.isNullOrBlank()) throw Exception("证书信息不能为空")
         // 尝试加载秘钥和证书
-        val clientEndPointCertTemp = getClientEndPointCert()
+        getClientEndPointCert()
         getPrivateKey()
-//        clientEndPointCertTemp.
     }
 
     // 用缓存就失败, 没找到原因
     fun getPrivateKey(): PrivateKey {
-        return if (privateKey.isNullOrBlank()) {
+        return if (!privateKey.isNullOrBlank()) {
             XmlSignatureUtils.getPrivateKey(privateKey!!, clientEndPointCertType!!)
         } else when (clientEndPointCertType) {
             ClientEndPointCertType.RSA -> XmlSignatureUtils.getRsaKey(keyIndex!!).private

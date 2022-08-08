@@ -88,8 +88,11 @@ class BaseProperties {
         }
     }
 
-    fun check() {
+    fun beforeInitCheck() {
         swsds.check()
+    }
+
+    fun afterInitCheck() {
         signature.check()
         messageConfig.forEach {
             it.value.check()
