@@ -350,26 +350,26 @@ object XmlSignatureUtils {
     /**
      * 创建签名节点
      * @param signedInfo            signedInfo节点
-     * @param digestValue           签名结果
+     * @param signatureValue        签名结果
      * @param x509Certificate       公钥证书
      * @param addX509Certificate    是否添加证书到签名节点
      */
     @JvmStatic
-    fun creatSignatureNode(signedInfo: String, digestValue: String? = null, x509Certificate: X509Certificate, addX509Certificate: Boolean = true): String {
+    fun creatSignatureNode(signedInfo: String, signatureValue: String? = null, x509Certificate: X509Certificate, addX509Certificate: Boolean = true): String {
         val x509CertificateStr = Base64.encode(x509Certificate.encoded)
-        return creatSignatureNode(signedInfo, digestValue, x509Certificate.serialNumber.toString(16), x509CertificateStr, addX509Certificate)
+        return creatSignatureNode(signedInfo, signatureValue, x509Certificate.serialNumber.toString(16), x509CertificateStr, addX509Certificate)
     }
 
     /**
      * 创建签名节点
      * @param signedInfo                    signedInfo节点
-     * @param digestValue                   签名结果
+     * @param signatureValue                签名结果
      * @param cryptoMachineCertificateNo    证书序号
      * @param x509Certificate               公钥证书
      * @param addX509Certificate            是否添加证书到签名节点
      */
     @JvmStatic
-    fun creatSignatureNode(signedInfo: String, digestValue: String? = null, cryptoMachineCertificateNo: String, x509Certificate: String, addX509Certificate: Boolean = true): String {
+    fun creatSignatureNode(signedInfo: String, signatureValue: String? = null, cryptoMachineCertificateNo: String, x509Certificate: String, addX509Certificate: Boolean = true): String {
 
         val builder = newDocumentBuilder()
         val document = builder.newDocument()
@@ -377,7 +377,7 @@ object XmlSignatureUtils {
         signatureElm.setAttribute("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#")
 
         val signatureValueElm = document.createElement("ds:SignatureValue")
-        signatureValueElm.appendChild(document.createTextNode(digestValue?.replace("\r\n", "") ?: ""))
+        signatureValueElm.appendChild(document.createTextNode(signatureValue?.replace("\r\n", "") ?: ""))
 
         val keyInfoElm = document.createElement("ds:KeyInfo")
 
@@ -542,13 +542,14 @@ object XmlSignatureUtils {
         clientEndPointCertType: ClientEndPointCertType,
         xmlStr: String,
         x509Certificate: X509Certificate,
+        privateKey: PrivateKey,
     ): String {
         val digestValue = calcDigestValue(clientEndPointCertType, xmlStr)
         return appendSignature(
             xmlStr,
             creatSignatureNode(
                 createSignedInfo(clientEndPointCertType = clientEndPointCertType, digestValue = digestValue),
-                null,
+                signatureDigest(clientEndPointCertType, privateKey, digestValue),
                 x509Certificate
             )
         )
@@ -566,7 +567,8 @@ object XmlSignatureUtils {
                 clientEndPointCertType,
                 // 生成业务节点XML
                 XmlUtils.entityToXml(entity, customsNamespacePrefixMapper),
-                signature.getClientEndPointCert()
+                signature.getClientEndPointCert(),
+                signature.getPrivateKey()
             ),
             entity.getMsgType(),
             signature.dxpId!!
