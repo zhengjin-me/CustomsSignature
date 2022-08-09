@@ -174,8 +174,7 @@ object XmlSignatureUtils {
      * @param key 密钥字符串（经过base64编码）
      */
     fun getPrivateKey(key: String, type: ClientEndPointCertType): PrivateKey {
-        val keyBytes = Base64.decode(key)
-        val keySpec = PKCS8EncodedKeySpec(keyBytes)
+        val keySpec = PKCS8EncodedKeySpec(key.toByteArray())
         val keyFactory = KeyFactory.getInstance(type.name)
         return keyFactory.generatePrivate(keySpec)
     }
