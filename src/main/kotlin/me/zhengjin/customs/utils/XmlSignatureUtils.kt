@@ -560,6 +560,9 @@ object XmlSignatureUtils {
      */
     @JvmStatic
     fun signatureEntity(clientEndPointCertType: ClientEndPointCertType, signature: CustomsSignature, entity: CEBMessage): String {
+        if (entity.baseTransfer == null) {
+            entity.baseTransfer = signature.toBaseTransfer()
+        }
         // 电子口岸终端节点
         return createDxpMsg(
             signature(
